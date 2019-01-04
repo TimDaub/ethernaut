@@ -22,7 +22,7 @@ const coinFlip = require('./build/contracts/CoinFlip.json');
   const FACTOR = new BigNumber(
     '57896044618658097711785492504343953926634992332820282019728792003956564819968',
   );
-  while (wins < 10) {
+  while (wins < 100) {
     // We get the current block number and the block's hash
     const blockNumber = await web3.eth.getBlockNumber();
     const blockHash = (await web3.eth.getBlock(blockNumber)).hash;
@@ -32,14 +32,11 @@ const coinFlip = require('./build/contracts/CoinFlip.json');
     // methods to be present on the object.
     const blockValue = new BigNumber(web3.utils.toBN(blockHash));
 
-    // Quite honestly, I didn't know you had to write it this way. I first
-    // thought blockValue.div(FACTOR)
-    const coinFlip = FACTOR.div(blockValue); // blockValue / FACTOR
+    const coinFlip = blockValue.div(FACTOR); // blockValue / FACTOR
 
-    // As we're dividing integers and since there is no implicit tipe coversion
-    // Solidity rounds up. Contrary to: https://github.com/ConsenSys/smart-contract-best-practices/blob/master/docs/recommendations.md#beware-rounding-with-integer-division
-    // I'm confused...
-    const guess = Math.ceil(coinFlip.toNumber()) === 1;
+    // As we're dividing integers and since there is no implicit type coversion
+    // Solidity rounds down: https://github.com/ConsenSys/smart-contract-best-practices/blob/master/docs/recommendations.md#beware-rounding-with-integer-division
+    const guess = Math.floor(coinFlip.toNumber()) === 1;
 
     // Once we have our guess, we send it to the contract to gamble.
     await contract.methods.flip(guess).send({from: publicKey});
