@@ -10,8 +10,7 @@ contract CoinFlip {
   }
 
   function flip(bool _guess) public returns (bool) {
-    bytes32 blockHash = block.blockhash(block.number-1);
-    uint256 blockValue = uint256(blockHash);
+    bytes32 blockHash = uint256(block.blockhash(block.number-1));
 
     if (lastHash == blockValue) {
       revert();
